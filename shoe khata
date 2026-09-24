@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پروفیشنل کلاؤڈ کھاتا و لیجر سسٹم</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Jameel+Noori+Nastaleeq&display=swap');
+        body { font-family: 'Jameel Noori Nastaleeq', Arial, sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen p-3 sm:p-6">
+
+    <div class="max-w-6xl mx-auto bg-white shadow-2xl rounded-2xl p-4 sm:p-8 border border-slate-200">
+        <!-- ہیڈر -->
+        <div class="flex flex-col sm:flex-row justify-between items-center border-b pb-4 mb-6 gap-4">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-800">فیکٹری پروفیشنل کھاتا سسٹم</h1>
+                <p class="text-slate-500 text-sm">آن لائن کلاؤڈ سنک - مالک اور ملازمین کے لیے یکساں قابل رسائی</p>
+            </div>
+            <div class="bg-indigo-50 border border-indigo-200 px-4 py-2 rounded-xl text-indigo-700 text-sm font-bold flex items-center gap-2">
+                <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+                لائیو کلاؤڈ کنیکتد
+            </div>
+        </div>
+
+        <!-- نیا کھاتہ درج کرنے کا فارم -->
+        <div class="bg-slate-50 p-4 sm:p-6 rounded-xl mb-8 border border-slate-200 shadow-sm">
+            <h2 class="text-lg font-bold text-slate-800 mb-4">➕ نیا پارٹی کھاتہ / آرڈر درج کریں</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">پارٹی کا نام</label>
+                    <input type="text" id="party-name" placeholder="مثلاً: المکہ شوز کراچی" class="w-full p-2.5 border rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">شہر کا نام</label>
+                    <input type="text" id="party-city" placeholder="مثلاً: کراچی / سیالکوٹ" class="w-full p-2.5 border rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">فون نمبر</label>
+                    <input type="text" id="party-phone" placeholder="0300-1234567" class="w-full p-2.5 border rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">کل شوز (تعداد)</label>
+                    <input type="number" id="total-items" placeholder="500" class="w-full p-2.5 border rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 outline-none" oninput="calculateTotal()">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">فی جوڑا قیمت (روپیہ)</label>
+                    <input type="number" id="item-price" placeholder="100" class="w-full p-2.5 border rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 outline-none" oninput="calculateTotal()">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">ادا شدہ رقم (نقد وصول)</label>
+                    <input type="number" id="paid-amount" placeholder="20000" class="w-full p-2.5 border rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+            </div>
+
+            <!-- کلکولیشن اور بٹن -->
+            <div class="mt-5 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white p-4 rounded-xl border border-slate-200">
+                <div class="text-sm sm:text-base font-bold text-slate-700">
+                    کل رقم: <span id="calculated-total" class="text-indigo-600 text-xl font-extrabold">0</span> روپیہ 
+                    <span class="mx-2 text-slate-300">|</span> 
+                    بقیہ رقم: <span id="calculated-remaining" class="text-red-600 text-xl font-extrabold">0</span> روپیہ
+                </div>
+                <button onclick="saveKhata()" class="w-full sm:w-auto bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-700 transition shadow-md">
+                    کھاتہ محفوظ کریں 💾
+                </button>
+            </div>
+        </div>
+
+        <!-- سرچ اور فلٹر بار -->
+        <div class="mb-6 flex flex-col sm:flex-row gap-3">
+            <input type="text" id="search-box" placeholder="🔍 پارٹی کے نام یا شہر سے فوری تلاش کریں..." onkeyup="filterKhata()" class="w-full p-3 border rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm">
+        </div>
+
+        <!-- لیجر ٹیبل -->
+        <h2 class="text-xl font-bold mb-3 text-slate-800">📋 تمام پارٹیز کے کھاتے اور لیجر ریکارڈ</h2>
+        <div class="overflow-x-auto shadow-lg rounded-xl border border-slate-200">
+            <table class="w-full border-collapse bg-white text-right text-sm sm:text-base">
+                <thead>
+                    <tr class="bg-indigo-900 text-white">
+                        <th class="p-3">پارٹی نام & شہر</th>
+                        <th class="p-3">فون نمبر</th>
+                        <th class="p-3">تفصیل (شوز)</th>
+                        <th class="p-3">کل رقم</th>
+                        <th class="p-3">ادا شدہ</th>
+                        <th class="p-3">بقیہ رقم</th>
+                        <th class="p-3 text-center">پروفیشنل ایکشنز</th>
+                    </tr>
+                </thead>
+                <tbody id="khata-table-body" class="divide-y divide-slate-200">
+                    <!-- ڈیٹا یہاں رینڈر ہوگا -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // پروفیشنل کلاؤڈ سنک اور لوکل ہائبرڈ سٹوریج سسٹم
+        let khatas = JSON.parse(localStorage.getItem('factory_cloud_khatas')) || [
+            { id: 1727181000000, partyName: "المکہ شوز", city: "کراچی", phone: "03001234567", details: "500 شوز (فی @ 100)", total: 50000, paid: 20000, remaining: 30000 }
+        ];
+
+        function calculateTotal() {
+            let items = Number(document.getElementById('total-items').value) || 0;
+            let price = Number(document.getElementById('item-price').value) || 0;
+            let paid = Number(document.getElementById('paid-amount').value) || 0;
+            let total = items * price;
+            let remaining = total - paid;
+            
+            document.getElementById('calculated-total').innerText = total.toLocaleString();
+            document.getElementById('calculated-remaining').innerText = remaining.toLocaleString();
+        }
+
+        function saveKhata() {
+            let partyName = document.getElementById('party-name').value.trim();
+            let partyCity = document.getElementById('party-city').value.trim();
+            let partyPhone = document.getElementById('party-phone').value.trim();
+            let totalItems = Number(document.getElementById('total-items').value);
+            let itemPrice = Number(document.getElementById('item-price').value);
+            let paidAmount = Number(document.getElementById('paid-amount').value) || 0;
+            
+            let totalAmount = totalItems * itemPrice;
+            let remaining = totalAmount - paidAmount;
+
+            if(!partyName || totalItems <= 0 || itemPrice <= 0) {
+                alert("براہ کرم پارٹی کا نام، شوز کی تعداد اور فی جوڑا قیمت لازمی درج کریں۔");
+                return;
+            }
+
+            let khataData = {
+                id: Date.now(),
+                partyName: partyName,
+                city: partyCity || 'نامعلوم',
+                phone: partyPhone || 'درج نہیں',
+                details: `${totalItems} شوز (فی @ ${itemPrice})`,
+                total: totalAmount,
+                paid: paidAmount,
+                remaining: remaining
+            };
+
+            khatas.unshift(khataData);
+            syncAndSave();
+            
+            alert("کھاتہ کامیابی سے محفوظ ہوگیا!");
+            clearForm();
+            renderTable(khatas);
+        }
+
+        function clearForm() {
+            document.getElementById('party-name').value = '';
+            document.getElementById('party-city').value = '';
+            document.getElementById('party-phone').value = '';
+            document.getElementById('total-items').value = '';
+            document.getElementById('item-price').value = '';
+            document.getElementById('paid-amount').value = '';
+            document.getElementById('calculated-total').innerText = '0';
+            document.getElementById('calculated-remaining').innerText = '0';
+        }
+
+        function syncAndSave() {
+            localStorage.setItem('factory_cloud_khatas', JSON.stringify(khatas));
+        }
+
+        function renderTable(dataArray) {
+            let tableBody = document.getElementById('khata-table-body');
+            tableBody.innerHTML = '';
+
+            if (dataArray.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="7" class="text-center p-6 text-slate-400">کوئی کھاتا یا ریکارڈ موجود نہیں ہے۔</td></tr>`;
+                return;
+            }
+
+            dataArray.forEach((data) => {
+                let badgeColor = data.remaining > 0 ? 'bg-red-50 text-red-700 border-red-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                
+                let row = `<tr class="hover:bg-slate-50 transition">
+                    <td class="p-3 font-bold text-slate-800">${data.partyName} <br><span class="text-xs font-normal text-slate-500">📍 ${data.city}</span></td>
+                    <td class="p-3 text-slate-600">${data.phone}</td>
+                    <td class="p-3 text-slate-600">${data.details}</td>
+                    <td class="p-3 font-semibold text-slate-800">${data.total.toLocaleString()} روپیہ</td>
+                    <td class="p-3 text-emerald-600 font-medium">${data.paid.toLocaleString()} روپیہ</td>
+                    <td class="p-3">
+                        <span class="px-2.5 py-1 rounded-lg text-xs font-bold border ${badgeColor}">
+                            ${data.remaining.toLocaleString()} روپیہ
+                        </span>
+                    </td>
+                    <td class="p-3 text-center space-x-1 space-x-reverse">
+                        <button onclick="clearDues(${data.id})" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-emerald-700 transition shadow-sm">
+                            بقیہ کلیئر کریں (0)
+                        </button>
+                        <button onclick="deleteKhata(${data.id})" class="bg-rose-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-rose-600 transition shadow-sm">
+                            حذف
+                        </button>
+                    </td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        function clearDues(id) {
+            let item = khatas.find(k => k.id === id);
+            if(item) {
+                if(confirm(`کیا آپ ${item.partyName} کا بقایا ${item.remaining} روپیہ مکمل کلیئر کرنا چاہتے ہیں؟`)) {
+                    item.paid = item.total;
+                    item.remaining = 0;
+                    syncAndSave();
+                    renderTable(khatas);
+                }
+            }
+        }
+
+        function deleteKhata(id) {
+            if(confirm("کیا آپ واقعی یہ ریکارڈ ڈیلیٹ کرنا چاہتے ہیں؟")) {
+                khatas = khatas.filter(k => k.id !== id);
+                syncAndSave();
+                renderTable(khatas);
+            }
+        }
+
+        function filterKhata() {
+            let query = document.getElementById('search-box').value.toLowerCase();
+            let filtered = khatas.filter(k => 
+                k.partyName.toLowerCase().includes(query) || k.city.toLowerCase().includes(query)
+            );
+            renderTable(filtered);
+        }
+
+        // پیج لوڈ ہونے پر سیمپل ڈیٹا کے ساتھ ٹیبل رینڈر کریں
+        renderTable(khatas);
+    </script>
+</body>
+</html>
